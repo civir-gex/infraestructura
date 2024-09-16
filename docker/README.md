@@ -9,3 +9,5 @@
 ### Con Docker, puede utilizar los contenedores como máquinas virtuales muy livianas y modulares, y obtiene la flexibilidad necesaria para crearlos, implementarlos, copiarlos y trasladarlos de un entorno a otro
 
 #### fuente: https://www.redhat.com/es/topics/containers/what-is-docker
+
+#### **El repositorio de dockerhub es joboro (docker pull joboro/gex_mssql2022:2024)
