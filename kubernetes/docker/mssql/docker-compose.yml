@@ -1,0 +1,36 @@
+version: '3.4'
+
+services:
+    mssql_w_agent:
+        build: 
+          context: .
+          dockerfile: mssql_whit_agent.Dockerfile
+        restart: unless-stopped
+        ports:
+          - "2433:1433"
+        hostname: mssqls
+        env_file:
+          - ./sqlserver.env
+          - ./sapassword.env
+        volumes:
+          - ./mssqls_agent/sqlsystem:/var/opt/mssql/
+          - ./mssqls_agent/sqldata:/var/opt/sqlserver/data
+          - ./mssqls_agent/sqllog:/var/opt/sqlserver/log
+          - ./mssqls_agent/sqlbackup:/var/opt/sqlserver/backup
+
+    mssql_w_agent_is:
+        build: 
+          context: .
+          dockerfile: mssql_whit_agent_integrationservices.Dockerfile
+        restart: unless-stopped
+        ports:
+          - "3433:1433"
+        hostname: mssqls
+        env_file:
+          - ./sqlserver.env
+          - ./sapassword.env
+        volumes:
+          - ./mssqls_agent_is/sqlsystem:/var/opt/mssql/
+          - ./mssqls_agent_is/sqldata:/var/opt/sqlserver/data
+          - ./mssqls_agent_is/sqllog:/var/opt/sqlserver/log
+          - ./mssqls_agent_is/sqlbackup:/var/opt/sqlserver/backup
