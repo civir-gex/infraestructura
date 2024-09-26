@@ -1,0 +1,13 @@
+{
+    "name": "typescript",
+    "main": "index.ts",
+    "devDependencies": {
+        "@types/node": "^18",
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "@muhlba91/pulumi-proxmoxve": "^6.11.1",
+        "@pulumi/pulumi": "^3.113.0",
+        "dotenv": "^16.4.5"
+    }
+}
