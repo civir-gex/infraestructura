@@ -1,30 +1,58 @@
 #!/bin/bash
 shopt -s expand_aliases
-export PROXMOX_VE_ENDPOINT=https://10.177.73.109:8006
-export PROXMOX_VE_PASSWORD=aabo110295
-export PROXMOX_VE_USERNAME=root@pam
-export PROXMOX_VE_INSECURE=true
-
-pbase="$HOME/.talos"
 
 clear
 
-[ -d "$pbase" ] && $(rm -f $pbase/*.*) || $(mkdir $pbase) 
+echo -e "Verificando Pulumi"
+PULUMI="$HOME/.pulumi/bin"
+[ -d "$PULUMI" ] && echo -e "Esta instalado\n" || $(curl -fsSL https://get.pulumi.com | sh)
+$(echo "export PATH=$PATH:$PULUMI")
 
-[ -d "$pbase/out" ] && $(rm -f $pbase/out/*.*) || $(mkdir $pbase/out) 
+echo -e "Preparando directorio de trabajo\n"
+PBASE="$HOME/.talos"
+[ -d "$PBASE" ] && $(rm -f $PBASE/*.*) || $(mkdir $PBASE) 
 
-if [ -d "$pbase/cmd/.pulumi" ] && [ -f "$pbase/cmd/helm" ] && [ -f "$pbase/cmd/kubectl" ] && [ -f "$pbase/cmd/talosctl" ]; then 
-    echo "scrips presentes" 
+OUT="$PBASE/out"
+[ -d "$OUT" ] && $(rm -f $OUT/*.*) || $(mkdir $OUT)
+
+HELM="$PBASE/cmd/helm"
+KUBECTL="$PBASE/cmd/kubectl"
+TALOSCTL="$PBASE/cmd/talosctl"
+PQT="$PBASE/cmd_k8s.zip"
+CMD="$PBASE/cmd"
+([ -f "$HELM" ] && [ -f "$KUBECTL" ] && [ -f "$TALOSCTL" ]) && echo "scrips presentes" || HTTP_CODE=$(curl 'https://drive.usercontent.google.com/download?id=1wRxC9Zqae-05TnyW3b1c-Qry3sqXGp4X&confirm=xxx' -o $PBASE/cmd_k8s.zip)
+if [ -f "$PQT" ]; then 
+    $(unzip -o $PQT -d $CMD) 
+    $(chmod -R +x $CMD) 
+    $(rm -f $PBASE/cmd_k8s.zip) 
+fi
+
+[ -f "$PULUMI/../credentials.json" ] && echo "" || $(cp $(pwd)/../credentials.json $PULUMI/../credentials.json)
+$(echo "pulumi login")
+
+if [ -f ".env" ]; then
+    ENV=($(cat .env))
+    for v in "${ENV[@]}"; do 
+        $(echo "export $v")
+    done
+    $(echo "pulumi up -y")
 else
-    $(rm -rf $pbase/cmd/*.*)
-    [ -f "$pbase/cmd_k8s.zip" ] && echo "paquete presente" || HTTP_CODE=$(curl 'https://drive.usercontent.google.com/download?id=1iZO8cjzR57ardswlBZgv4QsZ63EtJ9aI&confirm=xxx' -o $pbase/cmd_k8s.zip)
-    $(unzip -o $pbase/cmd_k8s.zip -d $pbase/cmd)
-    $(rm -f $pbase/cmd_k8s.zip)
-    $(chmod +x $pbase/cmd/.pulumi/bin/pulumi)
-fi  
+    echo "El archivo de variables de entorno para proxmox no existe"
+    echo "se creara uno pero debes completar los datos los datos"
+    $(touch .env)
+    $(echo "PROXMOX_VE_ENDPOINT=https://<ip_servidor>:8006" >> .env)
+    $(echo "PROXMOX_VE_PASSWORD=<contraseña>" >> .env)
+    $(echo "PROXMOX_VE_USERNAME=<usuario@reino>" >> .env)
+    $(echo "PROXMOX_VE_INSECURE=true" >> .env)
+    echo -e "Ejecuta nuevamente el script cuando estes listo"
+    exit 0
+fi
 
-alias t="$pbase/cmd/talosctl"
-alias k="$pbase/cmd/kubectl"
-alias p="$pbase/cmd/.pulumi/bin/pulumi"
+$(echo "pulumi logout")
+echo -e "Instalacion finalizada, ejecuta talos_conf.sh para desplegar el cluster de kubernets\n\n"
 
-p up -y
+# alias t="$pbase/cmd/talosctl"
+# alias k="$pbase/cmd/kubectl"
+# alias p="$pbase/cmd/.pulumi/bin/pulumi"
+
+# p up -y
