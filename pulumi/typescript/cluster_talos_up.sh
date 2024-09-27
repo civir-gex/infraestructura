@@ -1,5 +1,4 @@
 #!/bin/bash
-shopt -s expand_aliases
 
 clear
 
@@ -15,11 +14,12 @@ PBASE="$HOME/.talos"
 OUT="$PBASE/out"
 [ -d "$OUT" ] && $(rm -f $OUT/*.*) || $(mkdir $OUT)
 
-HELM="$PBASE/cmd/helm"
-KUBECTL="$PBASE/cmd/kubectl"
-TALOSCTL="$PBASE/cmd/talosctl"
-PQT="$PBASE/cmd_k8s.zip"
 CMD="$PBASE/cmd"
+HELM="$CMD/helm"
+KUBECTL="$CMD/kubectl"
+TALOSCTL="$CMD/talosctl"
+PQT="$PBASE/cmd_k8s.zip"
+
 ([ -f "$HELM" ] && [ -f "$KUBECTL" ] && [ -f "$TALOSCTL" ]) && echo "scrips presentes" || HTTP_CODE=$(curl 'https://drive.usercontent.google.com/download?id=1wRxC9Zqae-05TnyW3b1c-Qry3sqXGp4X&confirm=xxx' -o $PBASE/cmd_k8s.zip)
 if [ -f "$PQT" ]; then 
     $(unzip -o $PQT -d $CMD) 
@@ -49,10 +49,4 @@ else
 fi
 
 $(echo "pulumi logout")
-echo -e "Instalacion finalizada, ejecuta talos_conf.sh para desplegar el cluster de kubernets\n\n"
-
-# alias t="$pbase/cmd/talosctl"
-# alias k="$pbase/cmd/kubectl"
-# alias p="$pbase/cmd/.pulumi/bin/pulumi"
-
-# p up -y
+echo -e "Instalacion finalizada, cambia al directorio 'cd ../../talos-os' y ejecuta talos_conf.sh para desplegar el cluster de kubernets\n\n"
