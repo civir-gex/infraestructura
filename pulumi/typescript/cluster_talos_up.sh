@@ -49,4 +49,7 @@ else
 fi
 
 $(echo "pulumi logout")
-echo -e "Instalacion finalizada, cambia al directorio 'cd ../../talos-os' y ejecuta talos_conf.sh para desplegar el cluster de kubernets\n\n"
+echo -e "Instalacion finalizada\n"
+echo "Cambia al directorio 'cd ../../talos-os' y ejecutando talos_conf.sh para desplegar el cluster de kubernets\n\n"
+../../talos-os/esperar.sh 5
+cd ../../talos-os && ./talos_conf.sh

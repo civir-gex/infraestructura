@@ -4,16 +4,16 @@ const pulumi = require("@pulumi/pulumi");
 const proxmox = require("@muhlba91/pulumi-proxmoxve");
 
 const virtualmachines = [
-    {"Name":"TOSCP01","Type":"ControlPlane","MAC":"D6:00:00:AA:AA:C1","Nodo":"sgex01","Id":"801","CORES":"4","RAM":"4096"},
-    {"Name":"TOSCP02","Type":"ControlPlane","MAC":"D6:00:00:AA:AA:C2","Nodo":"sgex02","Id":"802","CORES":"4","RAM":"4096"},
-    {"Name":"TOSCP03","Type":"ControlPlane","MAC":"D6:00:00:AA:AA:C3","Nodo":"sgex03","Id":"803","CORES":"4","RAM":"4096"},
-    {"Name":"TOSWRK01","Type":"worker","MAC":"D6:00:00:AA:AA:D1","Nodo":"sgex01","Id":"811","CORES":"4","RAM":"4096"},
-    {"Name":"TOSWRK02","Type":"worker","MAC":"D6:00:00:AA:AA:D2","Nodo":"sgex02","Id":"812","CORES":"4","RAM":"4096"},
-    {"Name":"TOSWRK03","Type":"worker","MAC":"D6:00:00:AA:AA:D3","Nodo":"sgex03","Id":"813","CORES":"4","RAM":"4096"}
+    { "Name": "TOSCP01", "Type": "ControlPlane", "MAC": "D6:00:00:AA:AA:C1", "Nodo": "sgex01", "Id": "801", "CORES": "4", "RAM": "4096" },
+    { "Name": "TOSCP02", "Type": "ControlPlane", "MAC": "D6:00:00:AA:AA:C2", "Nodo": "sgex02", "Id": "802", "CORES": "4", "RAM": "4096" },
+    { "Name": "TOSCP03", "Type": "ControlPlane", "MAC": "D6:00:00:AA:AA:C3", "Nodo": "sgex03", "Id": "803", "CORES": "4", "RAM": "4096" },
+    { "Name": "TOSWRK01", "Type": "worker", "MAC": "D6:00:00:AA:AA:D1", "Nodo": "sgex01", "Id": "811", "CORES": "4", "RAM": "4096" },
+    { "Name": "TOSWRK02", "Type": "worker", "MAC": "D6:00:00:AA:AA:D2", "Nodo": "sgex02", "Id": "812", "CORES": "4", "RAM": "4096" },
+    { "Name": "TOSWRK03", "Type": "worker", "MAC": "D6:00:00:AA:AA:D3", "Nodo": "sgex03", "Id": "813", "CORES": "4", "RAM": "4096" }
 ]
 
 const provider = new proxmox.Provider('proxmoxve', {
-    virtualEnvironment:{
+    virtualEnvironment: {
         endpoint: process.env.PROXMOX_VE_ENDPOINT,
         insecure: true,
         username: "root@pam",
@@ -21,8 +21,8 @@ const provider = new proxmox.Provider('proxmoxve', {
     }
 });
 
-virtualmachines.forEach(vm=>{
-    console.log("Creando recurso en PVE:"+vm.Name)
+virtualmachines.forEach(vm => {
+    console.log("Creando recurso en PVE:" + vm.Name)
     new proxmox.vm.VirtualMachine(vm.Name, {
         nodeName: vm.Nodo,
         agent: {
@@ -40,7 +40,7 @@ virtualmachines.forEach(vm=>{
             {
                 interface: 'scsi0',
                 datastoreId: 'local',
-                size: 20,
+                size: 40,
                 fileFormat: 'qcow2',
             },
         ],
@@ -53,7 +53,7 @@ virtualmachines.forEach(vm=>{
         },
         name: vm.Name,
         vmId: vm.Id,
-        networkDevices:[
+        networkDevices: [
             {
                 bridge: 'vmbr0',
                 model: 'e1000e',
@@ -64,7 +64,7 @@ virtualmachines.forEach(vm=>{
         operatingSystem: {
             type: 'l26',
         },
-    },{
+    }, {
         provider: provider
     },)
 });

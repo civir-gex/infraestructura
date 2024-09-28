@@ -17,7 +17,7 @@ else
     exit 0
 fi 
 
-$TALOS gen secrets -o $OUT/secrets.yaml
+$TALOS gen secrets -o $OUT/secrets.yaml --force
 echo -en "Generando archivos de configuracion\r\n"
 $TALOS gen config --with-secrets $OUT/secrets.yaml k8sgex https://$IPb"10:6443" -o $OUT/ --force
 $TALOS --talosconfig $OUT/talosconfig config endpoint $IPb"11" $IPb"12" $IPb"13"
@@ -27,33 +27,38 @@ cp $OUT/talosconfig $OUT/../config
 sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/metallb.yaml'  $OUT/controlplane.yaml
 sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/nfs.yaml'  $OUT/controlplane.yaml
 sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/vip.yaml'  $OUT/controlplane.yaml
-# sed -i -e '/extraManifests: \[\]/a\' -e '      - https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml'  $OUT/controlplane.yaml
-# sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml'  $OUT/controlplane.yaml
+sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/metrics-server.yaml'  $OUT/controlplane.yaml
 sed -i 's/extraManifests: \[\]/extraManifests:/g'  $OUT/controlplane.yaml
 
 ./esperar.sh 30 "a que esten listas las VM's"
 
-echo -en "Generando los ControlPlane                                   \r\n"
+echo -en "Generando ControlPlane 1                                  \r"
 $TALOS apply-config --insecure -n $IPb"11" --file $OUT/controlplane.yaml 
-./esperar.sh 15
+./esperar.sh 15 "para generar ControlPlane 2                                  "
 $TALOS apply-config --insecure -n $IPb"12" --file $OUT/controlplane.yaml
-./esperar.sh 15
+./esperar.sh 15 "para generar ControlPlane 3                                  "
 $TALOS apply-config --insecure -n $IPb"13" --file $OUT/controlplane.yaml
-./esperar.sh 160 "a que se aplique la configuración"
+./esperar.sh 160 "a que se aplique la configuración de los ControlPlane"
+clear
 
-echo -en "Generando los Worker                                          \r\n"
+echo -en "Generando Worker 1                                         \r"
 $TALOS apply-config --insecure -n $IPb"241" --file $OUT/worker.yaml
-./esperar.sh 15
+./esperar.sh 15 "para generar Worker 2                                  "
 $TALOS apply-config --insecure -n $IPb"242" --file $OUT/worker.yaml
-./esperar.sh 15
+./esperar.sh 15 "para generar Worker 3                                  "
 $TALOS apply-config --insecure -n $IPb"243" --file $OUT/worker.yaml
-./esperar.sh 160 "a que se aplique la configuración"
-./esperar.sh 120 "para que los servidores esten listos"
+./esperar.sh 160 "a que se aplique la configuración de los Worker"
+clear
+
+./esperar.sh 120 "para que los servidores (VM) esten listos"
+clear
+
 echo -en "Haciendo Bootstrap                                             \r\n"
 $TALOS -n $IPb"11" -e $IPb"11" bootstrap
 ./esperar.sh 240 "para desplegar el Cluster en todos los nodos"
-echo -e "\nAplicando la configuracion para kubectl   
-               "
+clear
+
+echo -e "\nAplicando la configuracion para kubectl                         "
 $TALOS kubeconfig -n $IPb"10" --talosconfig=$PBASE/config --force
 $TALOS kubeconfig -n $IPb"10" --talosconfig=$PBASE/config $OUT --force
 
