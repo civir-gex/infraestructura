@@ -24,7 +24,7 @@ $TALOS --talosconfig $OUT/talosconfig config endpoint $IPb"11" $IPb"12" $IPb"13"
 $TALOS --talosconfig $OUT/talosconfig config node $IPb"11" $IPb"12" $IPb"13" $IPb"241" $IPb"242" $IPb"243"
 cp $OUT/talosconfig $OUT/../config
   
-# sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/metallb.yaml'  $OUT/controlplane.yaml
+sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/metallb.yaml'  $OUT/controlplane.yaml
 sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/nfs.yaml'  $OUT/controlplane.yaml
 sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/vip.yaml'  $OUT/controlplane.yaml
 sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/metrics-server.yaml'  $OUT/controlplane.yaml
@@ -75,7 +75,16 @@ $TALOS kubeconfig -n $IPb"10" --talosconfig=$PBASE/config $OUT --force
 
 echo "Cluster listo "
 # sed -i "s/$IPb"11":6443/$IPb"10":6443/g" $HOME/.kube/config
+echo "Agregando dashboard "
+$HELM repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+$HELM --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard 
+
+$KUBE apply -f https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/dashboard-admin.yaml
+$KUBE 
 
 ./esperar.sh 15 "para asegurar que los pods esten en linea"
 $KUBE get nodes -o wide
 $KUBE get pods -A
+$KUBE get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d > $OUT/long_token.txt
+
+echo "El token de administrador lo encontraras en $OUT"
