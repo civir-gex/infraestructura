@@ -38,7 +38,7 @@ $TALOS apply-config --insecure -n $IPb"11" --file $OUT/controlplane.yaml
 $TALOS apply-config --insecure -n $IPb"12" --file $OUT/controlplane.yaml
 ./esperar.sh 15 "para generar ControlPlane 3                                  "
 $TALOS apply-config --insecure -n $IPb"13" --file $OUT/controlplane.yaml
-./esperar.sh 160 "a que se aplique la configuración de los ControlPlane"
+./esperar.sh 100 "a que se aplique la configuración de los ControlPlane"
 clear
 
 echo -en "Generando Worker 1                                         \r"
@@ -47,15 +47,15 @@ $TALOS apply-config --insecure -n $IPb"241" --file $OUT/worker.yaml
 $TALOS apply-config --insecure -n $IPb"242" --file $OUT/worker.yaml
 ./esperar.sh 15 "para generar Worker 3                                  "
 $TALOS apply-config --insecure -n $IPb"243" --file $OUT/worker.yaml
-./esperar.sh 160 "a que se aplique la configuración de los Worker"
+./esperar.sh 100 "a que se aplique la configuración de los Worker"
 clear
 
-./esperar.sh 120 "para que los servidores (VM) esten listos"
+./esperar.sh 100 "para que los servidores (VM) esten listos"
 clear
 
 echo -en "Haciendo Bootstrap                                             \r\n"
 $TALOS -n $IPb"11" -e $IPb"11" bootstrap
-./esperar.sh 240 "para desplegar el Cluster en todos los nodos"
+./esperar.sh 180 "para desplegar el Cluster en todos los nodos"
 clear
 
 echo -e "\nAplicando la configuracion para kubectl                         "
@@ -73,18 +73,19 @@ $TALOS kubeconfig -n $IPb"10" --talosconfig=$PBASE/config $OUT --force
 # echo "Estableciendo clase de almacenamiento NFS"
 # $KUBE apply -f nfs.yaml
 
-echo "Cluster listo "
+clear
 # sed -i "s/$IPb"11":6443/$IPb"10":6443/g" $HOME/.kube/config
 echo "Agregando dashboard "
-$HELM repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-$HELM --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard 
+./esperar.sh 15
+$(echo "$HELM repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/")
+./esperar.sh 10
+$(echo "$HELM upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard")
 
-$KUBE apply -f https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/dashboard-admin.yaml
-$KUBE 
-
-./esperar.sh 15 "para asegurar que los pods esten en linea"
+./esperar.sh 20 "para asegurar que los pods esten en linea"
 $KUBE get nodes -o wide
 $KUBE get pods -A
-$KUBE get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d > $OUT/long_token.txt
 
-echo "El token de administrador lo encontraras en $OUT"
+$(echo "$KUBE apply -f https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/dashboard-admin.yaml")
+./esperar.sh 10
+$KUBE get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d > $OUT/long_token.txt
+echo "El token de administrador lo encontraras en $OUT/long_token.txt"
