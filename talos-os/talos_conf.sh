@@ -24,7 +24,7 @@ $TALOS --talosconfig $OUT/talosconfig config endpoint $IPb"11" $IPb"12" $IPb"13"
 $TALOS --talosconfig $OUT/talosconfig config node $IPb"11" $IPb"12" $IPb"13" $IPb"241" $IPb"242" $IPb"243"
 cp $OUT/talosconfig $OUT/../config
   
-sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/metallb.yaml'  $OUT/controlplane.yaml
+# sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/metallb.yaml'  $OUT/controlplane.yaml
 sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/nfs.yaml'  $OUT/controlplane.yaml
 sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/vip.yaml'  $OUT/controlplane.yaml
 sed -i -e '/extraManifests: \[\]/a\' -e '      - https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/metrics-server.yaml'  $OUT/controlplane.yaml
