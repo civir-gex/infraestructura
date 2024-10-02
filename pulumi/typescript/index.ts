@@ -26,7 +26,7 @@ virtualmachines.forEach(vm => {
     new proxmox.vm.VirtualMachine(vm.Name, {
         nodeName: vm.Nodo,
         agent: {
-            enabled: false,
+            enabled: true,
             trim: true,
             type: 'virtio',
         },
@@ -46,7 +46,7 @@ virtualmachines.forEach(vm => {
         ],
         cdrom: {
             enabled: true,
-            file_id: "local:iso/talos-metal-amd64.iso",
+            file_id: "local:iso/talos-metal-amd64-v1.7.iso",
         },
         memory: {
             dedicated: vm.RAM,
