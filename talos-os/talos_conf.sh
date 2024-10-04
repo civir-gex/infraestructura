@@ -46,19 +46,10 @@ done
 talosctl kubeconfig -n $VIP --talosconfig=$PBASE/config --force
 talosctl kubeconfig -n $VIP --talosconfig=$PBASE/config $OUT --force
 
-# echo "Agregando dashboard                                                        "
-# ./esperar.sh 15
-# $(echo "helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/")
-# ./esperar.sh 10
-# $(echo "helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard")
-
 ./esperar.sh 20 "para asegurar que los pods esten en linea"
 kubectl get nodes -o wide
 kubectl get pods -A
 
-# $(echo "kubectl apply -f https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/dashboard-admin.yaml")
-# ./esperar.sh 10
-# kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d > $OUT/long_token.txt
-# echo "El token de administrador lo encontraras en $OUT/long_token.txt"
+kubectl apply -f https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/kubernetes-skooner.yaml
 
-# # sed -i "s/$IPb"10":6443/$IPb"11":6443/g" $HOME/.kube/config
+kubectl get secret skooner-sa -n default -o jsonpath={".data.token"} | base64 -d > $OUT/long_token.txt
