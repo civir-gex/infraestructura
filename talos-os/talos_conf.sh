@@ -53,3 +53,12 @@ kubectl get pods -A
 kubectl apply -f https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/kubernetes-skooner.yaml
 
 kubectl get secret skooner-sa -n default -o jsonpath={".data.token"} | base64 -d > $OUT/long_token.txt
+
+echo "Para ingresar al dashboard del cluster ve a la direccion VIP e ingresa el token localizado en el archivo $HOME/.talos/out/long_token.txt"
+
+kubectl apply -f https://raw.githubusercontent.com/civir-gex/Extras/refs/heads/main/npm.yaml
+
+echo
+echo "Ingresa a Nginx Proxy Manager en la primera direccion del pool, puerto 81, con las credenciales:"
+echo "Email: admin@example.com"
+echo "Password: changeme"
